@@ -10,17 +10,17 @@ export default function PopUp({ handleClosePopup }) {
       add_sigma_to_segment: "Add sigma to segment",
       first_name: "First Name",
       last_name: "Last Name",
-      gender:"Gender",
-      age:"Age",
-      account_name:"Account Name",
+      gender: "Gender",
+      age: "Age",
+      account_name: "Account Name",
       city: "City",
-      state:"State"
+      state: "State",
     };
   }, []);
 
   const handleSave = useCallback(() => {
     const getSchema = addDatas.reduce((output, item) => {
-        output.push({
+      output.push({
         [item]: schemaOptions[item],
       });
 
@@ -31,9 +31,27 @@ export default function PopUp({ handleClosePopup }) {
       segment_name: name,
       schema: getSchema,
     };
+    fetch("http://localhost:3002/posts", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        data: selectedDatas,
+      }),
+    })
+      .then((res) => res.json())
+      .then((result) => {
+        console.log(result);
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
 
     console.log(selectedDatas);
+    handleClosePopup();
   }, [addDatas, schemaOptions]);
+  console.log("addDatas", addDatas.length);
   return (
     <div className="popup-content relative h-full">
       <div className="popup-header">
@@ -62,7 +80,7 @@ export default function PopUp({ handleClosePopup }) {
             type="text"
             placeholder="Name of the segment"
             className="border-4 border-spacing-4 w-full p-1.5 my-3"
-            onChange={(e)=>setName(e.target.value)}
+            onChange={(e) => setName(e.target.value)}
           />
         </div>
         <p className="my-3 font-semibold">
@@ -75,11 +93,15 @@ export default function PopUp({ handleClosePopup }) {
         />
         <div className="absolute bottom-3 ">
           <button
-            className="mx-2 bg-green-600 rounded-md text-white px-5 font-semibold py-2 border-2 border-black"
+            className={`mx-2 bg-green-600 rounded-md text-white px-5 font-semibold py-2 border-2 border-black ${
+              addDatas.length < 1 ? "cursor-not-allowed" : ""
+            }`}
             onClick={handleSave}
+            disabled={addDatas.length < 1}
           >
             Save the Segment
           </button>
+
           <button
             className="mx-2 bg-white rounded-md text-red-700 font-semibold px-5  py-2 border-2 border-black"
             onClick={handleClosePopup}
